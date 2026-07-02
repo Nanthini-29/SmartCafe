@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - SmartCafé AI Ordering</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- Header Navigation (Injected dynamically by app.js) -->
+    <header></header>
+
+    <main class="container section">
+        
+        <div class="section-title">
+            <h2>Your Order Basket</h2>
+            <p>Review items, apply discount coupon codes, and submit order for tracking.</p>
+        </div>
+
+        <div id="cart-container-layout" class="cart-layout">
+            <!-- Left Side: Items List -->
+            <section class="cart-items-section">
+                <div class="cart-items-list" id="cart-items-wrapper">
+                    <!-- Loaded dynamically -->
+                </div>
+            </section>
+
+            <!-- Right Side: Order Summary -->
+            <aside class="cart-summary glass-card">
+                <h3 class="summary-title">Order Summary</h3>
+                
+                <!-- Table Details -->
+                <div class="summary-row">
+                    <span>Dining Mode:</span>
+                    <strong id="summary-dining-mode">Table #5 (QR Detected)</strong>
+                </div>
+                <div class="summary-row" id="manual-table-input-wrapper" style="display: none; flex-direction: column; gap: 8px; margin-bottom: 20px;">
+                    <label for="table-dropdown" style="font-size: 0.85rem; color: var(--text-secondary);">Choose Table Number:</label>
+                    <select id="table-dropdown" style="background: rgba(0, 0, 0, 0.2); border: 1px solid var(--card-border); color: var(--text-primary); padding: 8px; border-radius: 6px;">
+                        <option value="Takeaway">Takeaway (Self Pickup)</option>
+                        <option value="1">Table 1</option>
+                        <option value="2">Table 2</option>
+                        <option value="3">Table 3</option>
+                        <option value="4">Table 4</option>
+                        <option value="5" selected>Table 5</option>
+                        <option value="6">Table 6</option>
+                        <option value="7">Table 7</option>
+                    </select>
+                </div>
+
+                <hr style="border: 0; height: 1px; background: var(--card-border); margin: 15px 0;">
+
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span id="summary-subtotal">$0.00</span>
+                </div>
+                
+                <div class="summary-row">
+                    <span>GST (18%)</span>
+                    <span id="summary-gst">$0.00</span>
+                </div>
+
+                <div class="summary-row" id="discount-row" style="display: none; color: var(--accent-green);">
+                    <span>Discount</span>
+                    <span id="summary-discount">-$0.00</span>
+                </div>
+
+                <!-- Coupon Section -->
+                <div class="coupon-section">
+                    <label for="coupon-code-input" style="font-size: 0.85rem; display: block; margin-bottom: 8px;">Promotional Coupon</label>
+                    <div class="coupon-input-group">
+                        <input type="text" id="coupon-code-input" placeholder="e.g. WELCOME20">
+                        <button class="btn btn-secondary" id="btn-apply-coupon">Apply</button>
+                    </div>
+                    <div id="coupon-status-badge" class="coupon-applied-badge" style="display: none;">
+                        <i data-lucide="check-circle"></i> <span id="coupon-status-text">Coupon Applied</span>
+                    </div>
+                </div>
+
+                <div class="summary-row total">
+                    <span>Total Bill</span>
+                    <span id="summary-total">$0.00</span>
+                </div>
+
+                <button class="btn btn-primary" id="btn-checkout" style="width: 100%; margin-top: 25px; padding: 15px;">
+                    <i data-lucide="credit-card"></i> Pay & Place Order
+                </button>
+            </aside>
+        </div>
+
+        <!-- Empty Cart State -->
+        <div id="empty-cart-view" class="empty-cart-state glass-card" style="display: none;">
+            <i data-lucide="shopping-bag"></i>
+            <h2>Your Basket is Empty</h2>
+            <p class="text-secondary" style="margin: 10px 0 30px;">Add artisanal items from our menu to start your self-service experience.</p>
+            <a href="menu.html" class="btn btn-primary">Browse Smart Menu</a>
+        </div>
+
+    </main>
+
+    <!-- Footer (Injected dynamically by app.js) -->
+    <footer></footer>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/cart.js"></script>
+    
+    <script>
+        let currentCouponCode = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCartPage();
+
+            // Setup Coupon Application
+            const btnCoupon = document.getElementById('btn-apply-coupon');
+            if (btnCoupon) {
+                btnCoupon.addEventListener('click', () => {
+                    const val = document.getElementById('coupon-code-input').value;
+                    if (val.trim() === '') return;
+                    
+                    currentCouponCode = val.trim();
+                    renderCartPage();
+                });
+            }
+
+            // Setup Checkout Button
+            const btnCheckout = document.getElementById('btn-checkout');
+            if (btnCheckout) {
+                btnCheckout.addEventListener('click', () => {
+                    // Extract table number
+                    let table = sessionStorage.getItem('scanned_table');
+                    if (!table) {
+                        const selectEl = document.getElementById('table-dropdown');
+                        table = selectEl ? selectEl.value : 'Takeaway';
+                    }
+
+                    const ok = Cart.checkout(table, currentCouponCode);
+                    if (ok) {
+                        // Redirect to tracking page
+                        window.location.href = 'tracking.html';
+                    }
+                });
+            }
+        });
+
+        // Render Cart items list and summary figures
+        function renderCartPage() {
+            const db = AppDB.get();
+            const wrapper = document.getElementById('cart-items-wrapper');
+            const layout = document.getElementById('cart-container-layout');
+            const emptyView = document.getElementById('empty-cart-view');
+            
+            if (db.cart.length === 0) {
+                if (layout) layout.style.display = 'none';
+                if (emptyView) emptyView.style.display = 'block';
+                return;
+            }
+
+            if (layout) layout.style.display = 'grid';
+            if (emptyView) emptyView.style.display = 'none';
+
+            // 1. Table/QR detection display
+            const diningEl = document.getElementById('summary-dining-mode');
+            const dropdownWrapper = document.getElementById('manual-table-input-wrapper');
+            
+            let table = sessionStorage.getItem('scanned_table');
+            if (table) {
+                diningEl.textContent = `Table #${table} (QR Code)`;
+                if (dropdownWrapper) dropdownWrapper.style.display = 'none';
+            } else {
+                diningEl.textContent = `Takeaway / Choose Table`;
+                if (dropdownWrapper) dropdownWrapper.style.display = 'flex';
+            }
+
+            // 2. Render Items
+            if (wrapper) {
+                wrapper.innerHTML = '';
+                db.cart.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = 'cart-item glass-card';
+                    row.innerHTML = `
+                        <img class="cart-item-img" src="${item.image}" alt="${item.name}">
+                        <div class="cart-item-details">
+                            <h4>${item.name}</h4>
+                            <p>$${item.price.toFixed(2)}</p>
+                        </div>
+                        <div class="cart-qty-controls">
+                            <button class="cart-qty-btn" onclick="Cart.updateQty('${item.id}', ${item.qty - 1})"><i data-lucide="minus" style="width: 14px; height: 14px;"></i></button>
+                            <span class="cart-qty-val">${item.qty}</span>
+                            <button class="cart-qty-btn" onclick="Cart.updateQty('${item.id}', ${item.qty + 1})"><i data-lucide="plus" style="width: 14px; height: 14px;"></i></button>
+                        </div>
+                        <button class="cart-item-remove" onclick="Cart.remove('${item.id}')" title="Remove Item"><i data-lucide="trash-2"></i></button>
+                    `;
+                    wrapper.appendChild(row);
+                });
+            }
+
+            // 3. Render Calculations
+            const totals = Cart.calculateTotals(currentCouponCode);
+            
+            document.getElementById('summary-subtotal').textContent = `$${totals.subtotal.toFixed(2)}`;
+            document.getElementById('summary-gst').textContent = `$${totals.gst.toFixed(2)}`;
+            document.getElementById('summary-total').textContent = `$${totals.total.toFixed(2)}`;
+
+            const discRow = document.getElementById('discount-row');
+            const discVal = document.getElementById('summary-discount');
+            const badge = document.getElementById('coupon-status-badge');
+            const badgeText = document.getElementById('coupon-status-text');
+
+            if (totals.discount > 0) {
+                if (discRow && discVal) {
+                    discVal.textContent = `-$${totals.discount.toFixed(2)}`;
+                    discRow.style.display = 'flex';
+                }
+                if (badge && badgeText) {
+                    badgeText.textContent = totals.couponMessage;
+                    badge.style.display = 'inline-flex';
+                    badge.className = 'coupon-applied-badge'; // green success theme
+                }
+            } else {
+                if (discRow) discRow.style.display = 'none';
+                
+                if (currentCouponCode) {
+                    // Invalid/Inactive Coupon applied
+                    if (badge && badgeText) {
+                        badgeText.textContent = totals.couponMessage || 'Invalid coupon';
+                        badge.style.display = 'inline-flex';
+                        badge.className = 'coupon-applied-badge badge-red'; // red warning theme
+                    }
+                } else {
+                    if (badge) badge.style.display = 'none';
+                }
+            }
+
+            if (window.lucide) lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

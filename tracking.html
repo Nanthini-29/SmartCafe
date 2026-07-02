@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Order Tracking - SmartCafé AI Queue</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- Header Navigation (Injected dynamically by app.js) -->
+    <header></header>
+
+    <main class="container section">
+
+        <div class="section-title">
+            <h2>Live Order Tracking</h2>
+            <p>Our smart kitchen is preparing your selection. Follow your order status in real time.</p>
+        </div>
+
+        <!-- ACTIVE TRACKER VIEW -->
+        <div id="active-order-section" class="tracking-card glass-card" style="display: none;">
+            <div class="tracking-header">
+                <div>
+                    <span class="text-secondary" style="font-size: 0.85rem; text-transform: uppercase;">Order Reference</span>
+                    <h3 style="font-size: 1.6rem; font-family: var(--font-body);">#<span id="track-order-id">1004</span></h3>
+                </div>
+                <div style="text-align: right;">
+                    <span class="text-secondary" style="font-size: 0.85rem; text-transform: uppercase;">Dining Location</span>
+                    <h3 style="font-size: 1.4rem; color: var(--accent-gold); font-family: var(--font-body);">Table <span id="track-table-num">5</span></h3>
+                </div>
+            </div>
+
+            <!-- Wait time statistics panel (AI wait times) -->
+            <div class="ai-wait-status-panel">
+                <div class="ai-status-stat">
+                    <span>Queue Position</span>
+                    <div class="num" id="track-pos-val">#1</div>
+                </div>
+                <div class="ai-status-stat">
+                    <span>Active Baristas</span>
+                    <div class="num" id="track-staff-val">3</div>
+                </div>
+                <div class="ai-status-stat">
+                    <span>Est. Wait Time</span>
+                    <div class="num" id="track-wait-val">3 min</div>
+                </div>
+            </div>
+
+            <!-- Tracking Steps (Vertical workflow timeline) -->
+            <div class="tracking-steps" id="tracking-steps-container">
+                <!-- Injected dynamically by tracking.js -->
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="tracking-progress-wrapper">
+                <div class="progress-bar-label">
+                    <span>Preparation Progress</span>
+                    <span id="progress-pct-label">10% Complete</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div id="progress-bar-fill" class="progress-bar-fill"></div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 15px; margin-top: 40px; justify-content: center;">
+                <a href="billing.html" class="btn btn-secondary">
+                    <i data-lucide="receipt"></i> View Digital Receipt
+                </a>
+                <a href="feedback.html" class="btn btn-outline">
+                    <i data-lucide="message-square"></i> Leave Feedback
+                </a>
+            </div>
+        </div>
+
+        <!-- NO ACTIVE ORDER STATE -->
+        <div id="no-order-section" class="empty-cart-state glass-card" style="display: none;">
+            <i data-lucide="activity"></i>
+            <h2>No Active Orders Tracked</h2>
+            <p class="text-secondary" style="margin: 10px 0 30px;">You do not have any active preparing orders right now. Scan a QR code or checkout your cart.</p>
+            <div style="display: flex; justify-content: center; gap: 15px;">
+                <a href="menu.html" class="btn btn-primary">Browse Smart Menu</a>
+                <a href="billing.html" class="btn btn-secondary">Order History Receipts</a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer (Injected dynamically by app.js) -->
+    <footer></footer>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/tracking.js"></script>
+</body>
+</html>

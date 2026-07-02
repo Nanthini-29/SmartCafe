@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartCafé - Premium Self-Service & AI Queue System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- Header Navigation (Injected dynamically by app.js) -->
+    <header></header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="container">
+            <div class="hero-content">
+                <span class="hero-tag">A New Era of Dining</span>
+                <h1>Luxury Coffee.<br><span>Zero Waiting.</span></h1>
+                <p class="hero-desc">Experience artisanal beverages paired with real-time AI queue analytics. Order instantly from your table and track exactly when your cup is ready.</p>
+                <div class="hero-cta">
+                    <a href="#qr-scanner-section" class="btn btn-primary">
+                        <i data-lucide="qr-code"></i> Scan Table QR
+                    </a>
+                    <a href="menu.html" class="btn btn-secondary">
+                        <i data-lucide="coffee"></i> Browse Menu
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section section-features" id="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>Intelligent Dining Features</h2>
+                <p>Designed to make your coffee-shop visit seamless, luxurious, and perfectly timed.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">
+                        <i data-lucide="qr-code"></i>
+                    </div>
+                    <h3>QR Table Ordering</h3>
+                    <p>No more queues at the counter. Scan your table QR code, browse our digital menu, and pay directly from your phone.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">
+                        <i data-lucide="cpu"></i>
+                    </div>
+                    <h3>AI Wait Prediction</h3>
+                    <p>Know exactly how long your order will take. Our AI factors in kitchen queue size, prep complexity, and staff count in real-time.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">
+                        <i data-lucide="sparkles"></i>
+                    </div>
+                    <h3>AI Smart Suggestions</h3>
+                    <p>Receive menu recommendations tailored to the time of day, current weather, and your personal favorites.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">
+                        <i data-lucide="gift"></i>
+                    </div>
+                    <h3>Luxury Rewards</h3>
+                    <p>Earn loyalty points for every sip. Unlock membership levels, free gourmet pastries, and exclusive member discounts.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- QR Scanner Simulation Page / Section -->
+    <section class="section section-qr" id="qr-scanner-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>QR Table Ordering</h2>
+                <p>Simulate table scanning by activating our digital scanner below to auto-detect table assignments.</p>
+            </div>
+            
+            <div class="qr-scanner-card glass-card">
+                <h3>Table Auto-Detector</h3>
+                <p class="text-secondary">Scan a simulated table QR code to begin ordering.</p>
+                
+                <div class="qr-scanner-screen">
+                    <!-- Scanner simulator screen overlay -->
+                    <img class="qr-simulated-video" src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=400" alt="Camera Scanner Feed">
+                    <div class="qr-scanner-overlay">
+                        <div class="qr-scanner-line"></div>
+                    </div>
+                    <div id="table-detected-badge" class="badge badge-green qr-table-badge" style="display: none;">
+                        <i data-lucide="check" style="margin-right: 4px; width: 12px; height: 12px;"></i> Table 5 Detected
+                    </div>
+                </div>
+
+                <div class="qr-actions">
+                    <button class="btn btn-primary" id="btn-start-scan">
+                        <i data-lucide="scan-line"></i> Simulate Scanner
+                    </button>
+                    <button class="btn btn-outline" id="btn-go-order" style="display: none; margin-top: 15px; width: 100%;">
+                        Start Ordering <i data-lucide="arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Popular Menu Showcase -->
+    <section class="section section-showcase" id="popular">
+        <div class="container">
+            <div class="section-title">
+                <h2>Signature Favorites</h2>
+                <p>Discover our top-rated barista creations and kitchen specials, prepared with gold-standard ingredients.</p>
+            </div>
+            <div class="popular-menu-grid" id="popular-showcase-container">
+                <!-- Rendered dynamically by page script -->
+            </div>
+            <div style="text-align: center; margin-top: 50px;">
+                <a href="menu.html" class="btn btn-outline">Explore Full Smart Menu</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Customer Reviews -->
+    <section class="section section-reviews" id="reviews">
+        <div class="container">
+            <div class="section-title">
+                <h2>What Connoisseurs Say</h2>
+                <p>Read opinions and feedback from our regular community members.</p>
+            </div>
+            <div class="reviews-grid">
+                <div class="review-card glass-card">
+                    <div class="review-stars">
+                        <i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i>
+                    </div>
+                    <p class="review-text">"The Signature Gold Latte is an absolute masterpiece. The wait-time prediction was spot on—said 4 minutes, and I had my cup exactly then!"</p>
+                    <div class="review-user">
+                        <img class="review-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120" alt="Elena">
+                        <div class="review-name">
+                            <h4>Elena Rostova</h4>
+                            <span>Gold Member</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="review-card glass-card">
+                    <div class="review-stars">
+                        <i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i>
+                    </div>
+                    <p class="review-text">"Ordering from the table is super convenient. I applied a welcome coupon and watched my order status transition live from cooking to ready."</p>
+                    <div class="review-user">
+                        <img class="review-avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120" alt="Marcus">
+                        <div class="review-name">
+                            <h4>Marcus Vance</h4>
+                            <span>Silver Member</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="review-card glass-card">
+                    <div class="review-stars">
+                        <i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star-half"></i>
+                    </div>
+                    <p class="review-text">"Love the dark glassmorphism styling of the app. It makes the entire dining experience feel exceptionally high-end and modern."</p>
+                    <div class="review-user">
+                        <img class="review-avatar" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=120" alt="Sarah">
+                        <div class="review-name">
+                            <h4>Sarah Lin</h4>
+                            <span>Bronze Member</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (Injected dynamically by app.js) -->
+    <footer></footer>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Render Popular Menu Items
+            const db = AppDB.get();
+            const popularItems = (db.menu || []).filter(item => item.isPopular).slice(0, 3);
+            const container = document.getElementById('popular-showcase-container');
+            
+            if (container) {
+                popularItems.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'showcase-card glass-card';
+                    card.innerHTML = `
+                        <div class="showcase-img-container">
+                            <img class="showcase-img" src="${item.image}" alt="${item.name}">
+                        </div>
+                        <div class="showcase-details">
+                            <div class="showcase-header">
+                                <h3>${item.name}</h3>
+                                <span class="showcase-price">$${item.price.toFixed(2)}</span>
+                            </div>
+                            <p class="showcase-desc">${item.description}</p>
+                            <a href="menu.html?highlight=${item.id}" class="btn btn-secondary" style="width: 100%;">
+                                <i data-lucide="shopping-cart"></i> Order Now
+                            </a>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+                if (window.lucide) lucide.createIcons();
+            }
+
+            // QR Scanner Simulation Logic
+            const btnScan = document.getElementById('btn-start-scan');
+            const btnOrder = document.getElementById('btn-go-order');
+            const badge = document.getElementById('table-detected-badge');
+            
+            if (btnScan) {
+                btnScan.addEventListener('click', () => {
+                    btnScan.innerHTML = `<i class="logo-icon" data-lucide="loader" style="animation: spin 1s linear infinite;"></i> Scanning Camera...`;
+                    if (window.lucide) lucide.createIcons();
+
+                    setTimeout(() => {
+                        btnScan.innerHTML = `<i data-lucide="check"></i> Rescan Table`;
+                        badge.style.display = 'inline-flex';
+                        btnOrder.style.display = 'inline-flex';
+                        if (window.lucide) lucide.createIcons();
+                        
+                        NotificationSystem.show('Simulated QR scan complete. Table #5 assigned!', 'success');
+                    }, 2000);
+                });
+            }
+
+            if (btnOrder) {
+                btnOrder.addEventListener('click', () => {
+                    // Set Table assignment in session/local storage
+                    sessionStorage.setItem('scanned_table', '5');
+                    window.location.href = 'menu.html?table=5';
+                });
+            }
+        });
+    </script>
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</body>
+</html>

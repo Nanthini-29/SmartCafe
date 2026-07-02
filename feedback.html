@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Feedback - SmartCafé AI Queue</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- Header Navigation (Injected dynamically by app.js) -->
+    <header></header>
+
+    <main class="container section">
+
+        <div class="section-title">
+            <h2>Your Feedback Engine</h2>
+            <p>Tell us about your self-service experience. Our real-time AI scans reviews to categorize sentiment levels.</p>
+        </div>
+
+        <div class="feedback-card glass-card">
+            <h3 style="font-size: 1.4rem; text-align: center; margin-bottom: 10px;">Rate Your Experience</h3>
+            <p class="text-secondary" style="text-align: center; font-size: 0.9rem;">How would you rate our drinks and wait predictions?</p>
+
+            <!-- Star selector container -->
+            <div class="rating-selector" id="rating-star-container">
+                <button class="star-btn" data-value="1">★</button>
+                <button class="star-btn" data-value="2">★</button>
+                <button class="star-btn" data-value="3">★</button>
+                <button class="star-btn" data-value="4">★</button>
+                <button class="star-btn" data-value="5">★</button>
+            </div>
+
+            <label for="feedback-text" style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 8px;">Write Review Comments</label>
+            <textarea id="feedback-text" class="feedback-textarea" placeholder="Write here... (Try words like 'amazing service', 'delicious flat white', or 'slow preparation' to see the AI analyze your mood in real time!)"></textarea>
+
+            <!-- Dynamic AI Sentiment Indicator -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px;">
+                <span style="font-size: 0.85rem; color: var(--text-secondary);">Real-Time Mood Analyzer:</span>
+                <div id="sentiment-indicator" class="ai-sentiment-badge" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border); margin-bottom: 0;">
+                    <span id="sentiment-emoji" style="font-size: 1.1rem; margin-right: 5px;">😐</span> 
+                    <span id="sentiment-text" style="text-transform: uppercase;">Neutral</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="btn-submit-review" style="width: 100%; padding: 14px;">
+                <i data-lucide="send"></i> Submit Review & Metrics
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer (Injected dynamically by app.js) -->
+    <footer></footer>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/ai.js"></script>
+    <script>
+        let selectedRating = 0;
+        let currentSentiment = 'neutral';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupRatingStars();
+            setupSentimentAnalysis();
+
+            const btnSubmit = document.getElementById('btn-submit-review');
+            if (btnSubmit) {
+                btnSubmit.addEventListener('click', () => {
+                    const text = document.getElementById('feedback-text').value;
+                    
+                    if (selectedRating === 0) {
+                        NotificationSystem.show('Please select a star rating first!', 'error');
+                        return;
+                    }
+
+                    submitFeedback(selectedRating, text);
+                });
+            }
+        });
+
+        // 1. Setup star click listeners
+        function setupRatingStars() {
+            const stars = document.querySelectorAll('.star-btn');
+            stars.forEach(star => {
+                star.addEventListener('click', (e) => {
+                    selectedRating = parseInt(e.currentTarget.getAttribute('data-value'));
+                    highlightStars(selectedRating);
+                });
+
+                star.addEventListener('mouseover', (e) => {
+                    const hoverVal = parseInt(e.currentTarget.getAttribute('data-value'));
+                    highlightStars(hoverVal, true);
+                });
+
+                star.addEventListener('mouseout', () => {
+                    highlightStars(selectedRating);
+                });
+            });
+        }
+
+        function highlightStars(count, isHover = false) {
+            const stars = document.querySelectorAll('.star-btn');
+            stars.forEach((star, index) => {
+                if (index < count) {
+                    star.style.color = isHover ? 'rgba(212, 175, 55, 0.6)' : 'var(--accent-gold)';
+                } else {
+                    star.style.color = 'rgba(255, 255, 255, 0.1)';
+                }
+            });
+        }
+
+        // 2. Dynamic live text sentiment analyzer
+        function setupSentimentAnalysis() {
+            const textarea = document.getElementById('feedback-text');
+            const badge = document.getElementById('sentiment-indicator');
+            const emojiEl = document.getElementById('sentiment-emoji');
+            const textEl = document.getElementById('sentiment-text');
+
+            if (textarea) {
+                textarea.addEventListener('input', (e) => {
+                    const text = e.target.value;
+                    const res = AI.analyzeSentiment(text);
+                    
+                    currentSentiment = res.sentiment;
+                    
+                    // Update Text & Emoji
+                    textEl.textContent = res.sentiment;
+                    emojiEl.textContent = res.emoji;
+
+                    // Update Badge styling
+                    badge.className = 'ai-sentiment-badge';
+                    if (res.sentiment === 'positive') {
+                        badge.style.border = '1px solid var(--accent-green)';
+                        badge.style.background = 'rgba(55, 212, 164, 0.08)';
+                        badge.style.color = 'var(--accent-green)';
+                    } else if (res.sentiment === 'negative') {
+                        badge.style.border = '1px solid var(--accent-red)';
+                        badge.style.background = 'rgba(212, 76, 55, 0.08)';
+                        badge.style.color = 'var(--accent-red)';
+                    } else {
+                        badge.style.border = '1px solid var(--card-border)';
+                        badge.style.background = 'rgba(255, 255, 255, 0.05)';
+                        badge.style.color = 'var(--text-primary)';
+                    }
+                });
+            }
+        }
+
+        // 3. Save feedback and metrics
+        function submitFeedback(rating, comment) {
+            const db = AppDB.get();
+            
+            // Calculate satisfaction score (rating * 20%)
+            const satisfactionScore = rating * 20;
+
+            const reviewObj = {
+                rating: rating,
+                comment: comment,
+                sentiment: currentSentiment,
+                satisfaction: satisfactionScore,
+                date: new Date().toLocaleDateString()
+            };
+
+            db.reviews.unshift(reviewObj);
+            AppDB.updateKey('reviews', db.reviews);
+
+            NotificationSystem.show('Thank you! Review metrics submitted to AI analytics dashboard.', 'success');
+
+            // Reset UI
+            selectedRating = 0;
+            highlightStars(0);
+            document.getElementById('feedback-text').value = '';
+            
+            const badge = document.getElementById('sentiment-indicator');
+            document.getElementById('sentiment-text').textContent = 'Neutral';
+            document.getElementById('sentiment-emoji').textContent = '😐';
+            badge.style.border = '1px solid var(--card-border)';
+            badge.style.background = 'rgba(255, 255, 255, 0.05)';
+            badge.style.color = 'var(--text-primary)';
+
+            // Redirect back to home after brief delay
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

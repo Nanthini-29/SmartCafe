@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Loyalty Rewards - SmartCafé AI Queue</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- Header Navigation (Injected dynamically by app.js) -->
+    <header></header>
+
+    <main class="container section">
+
+        <div class="section-title">
+            <h2>Luxury Club Rewards</h2>
+            <p>Earn loyalty points on every purchase. Unlock membership tiers and copy promotional vouchers.</p>
+        </div>
+
+        <!-- Loyalty Points Overview Panel -->
+        <div class="rewards-header-card glass-card">
+            <div>
+                <span class="badge" style="margin-bottom: 12px;">Loyalty Status</span>
+                <h3 style="font-size: 2.2rem; margin-bottom: 8px;">Hello, Connoisseur</h3>
+                <p class="text-secondary" style="margin-bottom: 24px;">Your current level is <strong id="rewards-tier-name" style="color: var(--accent-gold);">Silver</strong>. Keep ordering artisanal brews to upgrade to Gold status.</p>
+                
+                <div class="summary-row" style="margin-bottom: 8px;">
+                    <span style="font-size: 0.85rem;">Progress to Next Tier (Gold - 500 Points)</span>
+                    <span id="rewards-progress-txt" style="font-size: 0.85rem; font-weight: 600;">150 / 500 Pts</span>
+                </div>
+                <div class="progress-bar-bg" style="height: 6px;">
+                    <div id="rewards-bar-fill" class="progress-bar-fill" style="width: 30%;"></div>
+                </div>
+            </div>
+            
+            <div class="loyalty-progress-panel">
+                <div class="loyalty-radial">
+                    <div class="loyalty-radial-circle" id="radial-progress-border"></div>
+                    <div class="loyalty-radial-content">
+                        <span class="pts" id="rewards-points-val">150</span>
+                        <span class="lbl">Total Points</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="margin-bottom: 24px; font-size: 1.5rem; text-align: center;">Available Member Vouchers</h3>
+
+        <!-- Vouchers Grid -->
+        <div class="rewards-grid-categories" style="margin-bottom: 50px;">
+            <!-- Coupon Card 1 -->
+            <div class="coupon-card glass-card">
+                <div class="coupon-left">
+                    <span class="discount">20%</span>
+                    <span class="type">OFF</span>
+                </div>
+                <div class="coupon-right">
+                    <div>
+                        <h4>Welcome Promo Voucher</h4>
+                        <p>Receive 20% off all beverages and bakery items on your checkout ticket.</p>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                        <span class="coupon-code-badge">WELCOME20</span>
+                        <button class="btn btn-secondary btn-icon" onclick="copyCoupon('WELCOME20')" title="Copy Code">
+                            <i data-lucide="copy" style="width: 16px; height: 16px;"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coupon Card 2 -->
+            <div class="coupon-card glass-card">
+                <div class="coupon-left">
+                    <span class="discount">10%</span>
+                    <span class="type">OFF</span>
+                </div>
+                <div class="coupon-right">
+                    <div>
+                        <h4>Loyal Companion Discount</h4>
+                        <p>Enjoy a 10% deduction on your entire order. Available for all tiers.</p>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                        <span class="coupon-code-badge">COFFEE10</span>
+                        <button class="btn btn-secondary btn-icon" onclick="copyCoupon('COFFEE10')" title="Copy Code">
+                            <i data-lucide="copy" style="width: 16px; height: 16px;"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coupon Card 3 -->
+            <div class="coupon-card glass-card">
+                <div class="coupon-left">
+                    <span class="discount">FREE</span>
+                    <span class="type">DRINK</span>
+                </div>
+                <div class="coupon-right">
+                    <div>
+                        <h4>Free Signature Coffee</h4>
+                        <p>Redeem one signature coffee at zero cost. Ideal for trying gold lattes.</p>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                        <span class="coupon-code-badge">FREECOFFEE</span>
+                        <button class="btn btn-secondary btn-icon" onclick="copyCoupon('FREECOFFEE')" title="Copy Code">
+                            <i data-lucide="copy" style="width: 16px; height: 16px;"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Points Transaction Logs -->
+        <div class="glass-card" style="max-width: 700px; margin: 0 auto;">
+            <h3 style="margin-bottom: 20px; font-size: 1.25rem;"><i data-lucide="history" style="vertical-align: middle; margin-right: 8px; color: var(--accent-gold);"></i> Point Ledger History</h3>
+            <div id="rewards-ledger-wrapper">
+                <!-- Loaded dynamically -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer (Injected dynamically by app.js) -->
+    <footer></footer>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderRewardsDashboard();
+        });
+
+        // Pull loyalty details from LocalStorage
+        function renderRewardsDashboard() {
+            const db = AppDB.get();
+            const rewards = db.rewards;
+
+            // 1. Text variables
+            document.getElementById('rewards-points-val').textContent = rewards.points;
+            document.getElementById('rewards-tier-name').textContent = rewards.level;
+
+            // 2. Bar progress calculations
+            let maxPoints = 250;
+            let currentLevelRange = 0;
+            
+            if (rewards.level === 'Gold') {
+                maxPoints = 1000;
+                currentLevelRange = 500;
+                document.getElementById('rewards-progress-txt').textContent = `${rewards.points} / ${maxPoints} Pts (Platinum Gate)`;
+            } else if (rewards.level === 'Silver') {
+                maxPoints = 500;
+                currentLevelRange = 250;
+                document.getElementById('rewards-progress-txt').textContent = `${rewards.points} / ${maxPoints} Pts`;
+            } else {
+                maxPoints = 250;
+                currentLevelRange = 0;
+                document.getElementById('rewards-progress-txt').textContent = `${rewards.points} / ${maxPoints} Pts`;
+            }
+
+            const rangeTotal = maxPoints - currentLevelRange;
+            const rangeEarned = rewards.points - currentLevelRange;
+            const percentage = Math.min(100, Math.max(0, Math.round((rangeEarned / rangeTotal) * 100)));
+            
+            const barFill = document.getElementById('rewards-bar-fill');
+            if (barFill) barFill.style.width = `${percentage}%`;
+
+            // Adjust radial border rotation representing percentage
+            const borderEl = document.getElementById('radial-progress-border');
+            if (borderEl) {
+                const rotationDeg = 45 + (percentage * 3.6); // scale 0-100 to degrees
+                borderEl.style.transform = `rotate(${rotationDeg}deg)`;
+            }
+
+            // 3. Render Transaction History
+            const ledgerWrapper = document.getElementById('rewards-ledger-wrapper');
+            if (ledgerWrapper) {
+                ledgerWrapper.innerHTML = '';
+                
+                if (rewards.history.length === 0) {
+                    ledgerWrapper.innerHTML = `<p style="text-align: center; color: var(--text-secondary); padding: 20px;">No transaction activities on record.</p>`;
+                    return;
+                }
+
+                const ul = document.createElement('ul');
+                ul.style.listStyle = 'none';
+                ul.style.display = 'flex';
+                ul.style.flexDirection = 'column';
+                ul.style.gap = '15px';
+
+                rewards.history.forEach(log => {
+                    const li = document.createElement('li');
+                    li.style.display = 'flex';
+                    li.style.justify = 'space-between';
+                    li.style.justifyContent = 'space-between';
+                    li.style.alignItems = 'center';
+                    li.style.paddingBottom = '12px';
+                    li.style.borderBottom = '1px solid var(--card-border)';
+                    
+                    const sign = log.points >= 0 ? '+' : '';
+                    const color = log.points >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+
+                    li.innerHTML = `
+                        <div>
+                            <strong style="font-size: 0.95rem; display: block;">${log.desc}</strong>
+                            <span style="font-size: 0.8rem; color: var(--text-secondary);">${log.date}</span>
+                        </div>
+                        <span style="font-weight: 700; color: ${color};">${sign}${log.points} Pts</span>
+                    `;
+                    ul.appendChild(li);
+                });
+                
+                // remove last border
+                if (ul.lastChild) {
+                    ul.lastChild.style.borderBottom = 'none';
+                }
+                
+                ledgerWrapper.appendChild(ul);
+            }
+        }
+
+        // Copy coupon code to clipboard
+        function copyCoupon(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                NotificationSystem.show(`Code "${code}" copied to clipboard!`, 'success');
+            }).catch(err => {
+                NotificationSystem.show('Clipboard copy failed.', 'error');
+            });
+        }
+    </script>
+</body>
+</html>

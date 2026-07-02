@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard & AI Diagnostics - SmartCafé AI Queue</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- Header Navigation (Injected dynamically by app.js) -->
+    <header></header>
+
+    <main class="container section">
+
+        <div class="section-title">
+            <h2>Admin Analytics Dashboard</h2>
+            <p>Review real-time store metrics, adjust kitchen staff count, track stock levels, and evaluate AI recommendations.</p>
+        </div>
+
+        <!-- 4 Top Statistics Cards -->
+        <div class="admin-stats-grid">
+            <div class="admin-stat-card glass-card">
+                <div class="admin-stat-icon"><i data-lucide="shopping-bag"></i></div>
+                <div class="admin-stat-details">
+                    <span>Total Orders</span>
+                    <h3 id="stat-total-orders">0</h3>
+                </div>
+            </div>
+            <div class="admin-stat-card glass-card">
+                <div class="admin-stat-icon"><i data-lucide="dollar-sign"></i></div>
+                <div class="admin-stat-details">
+                    <span>Total Revenue</span>
+                    <h3 id="stat-revenue">$0.00</h3>
+                </div>
+            </div>
+            <div class="admin-stat-card glass-card">
+                <div class="admin-stat-icon"><i data-lucide="users"></i></div>
+                <div class="admin-stat-details">
+                    <span>Active In-Store</span>
+                    <h3 id="stat-active-customers">0</h3>
+                </div>
+            </div>
+            <div class="admin-stat-card glass-card">
+                <div class="admin-stat-icon"><i data-lucide="star"></i></div>
+                <div class="admin-stat-details">
+                    <span>Popular Brew</span>
+                    <h3 id="stat-popular-item">Signature Latte</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Grid (2 columns: 1 wide chart, 1 narrow chart) -->
+        <div class="admin-charts-grid">
+            <div class="admin-chart-card glass-card">
+                <h3 style="font-size: 1.15rem; margin-bottom: 20px;"><i data-lucide="trending-up" style="vertical-align: middle; margin-right: 5px; color: var(--accent-gold);"></i> Sales Revenue Growth</h3>
+                <div class="admin-chart-container">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="admin-chart-card glass-card">
+                <h3 style="font-size: 1.15rem; margin-bottom: 20px;"><i data-lucide="pie-chart" style="vertical-align: middle; margin-right: 5px; color: var(--accent-gold);"></i> Mood Satisfaction</h3>
+                <div class="admin-chart-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--accent-green); margin-bottom: 5px;" id="satisfaction-pct-value">95%</div>
+                    <div style="width: 100%; height: calc(100% - 40px); position: relative;">
+                        <canvas id="satisfactionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-charts-grid" style="margin-bottom: 40px;">
+            <div class="admin-chart-card glass-card">
+                <h3 style="font-size: 1.15rem; margin-bottom: 20px;"><i data-lucide="bar-chart-3" style="vertical-align: middle; margin-right: 5px; color: var(--accent-gold);"></i> AI Peak Store Occupancy</h3>
+                <div class="admin-chart-container">
+                    <canvas id="rushHourChart"></canvas>
+                </div>
+            </div>
+
+            <div class="admin-chart-card glass-card">
+                <h3 style="font-size: 1.15rem; margin-bottom: 20px;"><i data-lucide="award" style="vertical-align: middle; margin-right: 5px; color: var(--accent-gold);"></i> Item Sales Volumes</h3>
+                <div class="admin-chart-container">
+                    <canvas id="popularChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lower Grid: Inventory & AI Control Cabin -->
+        <div class="admin-insights-grid">
+            
+            <!-- Left Panel: Inventory alert list -->
+            <section class="glass-card">
+                <h3 style="font-size: 1.25rem; margin-bottom: 20px;"><i data-lucide="package-search" style="vertical-align: middle; margin-right: 8px; color: var(--accent-gold);"></i> Stock Inventory Monitor</h3>
+                <ul class="inventory-list" id="inventory-list-container">
+                    <!-- Loaded dynamically -->
+                </ul>
+            </section>
+
+            <!-- Right Panel: Staff Allocation AI Command Deck -->
+            <section class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h3 style="font-size: 1.25rem; margin-bottom: 20px;"><i data-lucide="cpu" style="vertical-align: middle; margin-right: 8px; color: var(--accent-gold);"></i> AI Barista Dispatch Desk</h3>
+                    
+                    <div class="ai-recommendation-panel" style="margin-bottom: 25px;" id="ai-allocation-alert-card">
+                        <h3 id="ai-rec-alert-title"><i data-lucide="info"></i> Dispatch Status</h3>
+                        <p class="ai-rec-text" id="ai-staff-recommendation-text">Analyzing kitchen workload statistics...</p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                        <div class="ai-status-stat">
+                            <span>Pending Kitchen Orders</span>
+                            <div class="num" id="admin-queue-size-val">0</div>
+                        </div>
+                        <div class="ai-status-stat">
+                            <span>Kitchen Dispatch Ratio</span>
+                            <div class="num" id="admin-workload-val">Light</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="staff-control-group">
+                    <div>
+                        <strong style="display: block; font-size: 0.95rem;">Active Kitchen Staff</strong>
+                        <span class="text-secondary" style="font-size: 0.8rem;">Change count to shift wait-times on Track page</span>
+                    </div>
+                    <div class="staff-counter">
+                        <button class="staff-counter-btn" id="btn-staff-decrease"><i data-lucide="minus" style="width: 16px; height: 16px;"></i></button>
+                        <span class="staff-count-val" id="admin-staff-count-val">3</span>
+                        <button class="staff-counter-btn" id="btn-staff-increase"><i data-lucide="plus" style="width: 16px; height: 16px;"></i></button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <!-- Footer (Injected dynamically by app.js) -->
+    <footer></footer>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/analytics.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Analytics.init();
+            renderInventory();
+            renderAIAllocationPanel();
+
+            // Setup Staff allocation adjustment buttons
+            const btnDec = document.getElementById('btn-staff-decrease');
+            const btnInc = document.getElementById('btn-staff-increase');
+
+            if (btnDec) {
+                btnDec.addEventListener('click', () => {
+                    adjustStaff(-1);
+                });
+            }
+
+            if (btnInc) {
+                btnInc.addEventListener('click', () => {
+                    adjustStaff(1);
+                });
+            }
+        });
+
+        // Load Stock list dynamically
+        function renderInventory() {
+            const db = AppDB.get();
+            const container = document.getElementById('inventory-list-container');
+            if (!container) return;
+
+            container.innerHTML = '';
+            
+            db.menu.forEach(item => {
+                const stock = db.inventory[item.id] !== undefined ? db.inventory[item.id] : 10;
+                
+                let badgeClass = 'badge-green';
+                let stockText = `${stock} Units`;
+
+                if (stock <= 5) {
+                    badgeClass = 'badge-red';
+                    stockText = `Critical: ${stock} Left`;
+                } else if (stock <= 15) {
+                    badgeClass = 'badge';
+                    stockText = `Low: ${stock} Left`;
+                }
+
+                const li = document.createElement('li');
+                li.className = 'inventory-item';
+                li.innerHTML = `
+                    <div>
+                        <h4>${item.name}</h4>
+                        <span>Category: ${item.category}</span>
+                    </div>
+                    <span class="badge ${badgeClass}">${stockText}</span>
+                `;
+                container.appendChild(li);
+            });
+        }
+
+        // Render AI Staff Recommendation Card
+        function renderAIAllocationPanel() {
+            const db = AppDB.get();
+            const staff = db.settings.activeStaff;
+            const queueSize = db.settings.kitchenQueueSize;
+
+            document.getElementById('admin-queue-size-val').textContent = queueSize;
+            document.getElementById('admin-staff-count-val').textContent = staff;
+
+            // Retrieve AI analytics details
+            const recommendation = AI.recommendStaffAllocation(queueSize, staff);
+            const workloadDetails = AI.predictWaitTime(queueSize, queueSize, staff);
+
+            document.getElementById('admin-workload-val').textContent = workloadDetails.workloadLevel;
+            
+            const recTextEl = document.getElementById('ai-staff-recommendation-text');
+            recTextEl.textContent = recommendation.recommendationText;
+
+            // Style Card accordingly
+            const alertCard = document.getElementById('ai-allocation-alert-card');
+            const alertTitle = document.getElementById('rec-alert-title');
+
+            if (recommendation.alertType === 'warning') {
+                alertCard.style.border = '1px solid var(--accent-red)';
+                alertCard.style.background = 'rgba(212, 76, 55, 0.08)';
+                alertTitle.innerHTML = `<i data-lucide="alert-triangle" style="color: var(--accent-red); margin-right: 5px;"></i> Staff Shortage Alert`;
+            } else if (recommendation.alertType === 'success') {
+                alertCard.style.border = '1px solid var(--accent-green)';
+                alertCard.style.background = 'rgba(55, 212, 164, 0.08)';
+                alertTitle.innerHTML = `<i data-lucide="check-circle" style="color: var(--accent-green); margin-right: 5px;"></i> Allocation Optimal`;
+            } else {
+                alertCard.style.border = '1px solid var(--card-border)';
+                alertCard.style.background = 'rgba(255, 255, 255, 0.03)';
+                alertTitle.innerHTML = `<i data-lucide="info" style="color: var(--accent-gold); margin-right: 5px;"></i> Dispatch Status`;
+            }
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // Change staff count and update LocalStorage and UI in real time
+        function adjustStaff(amount) {
+            const db = AppDB.get();
+            let staff = db.settings.activeStaff + amount;
+            
+            if (staff < 1) {
+                NotificationSystem.show('Minimum 1 barista is required!', 'error');
+                return;
+            }
+            if (staff > 10) {
+                NotificationSystem.show('Maximum kitchen occupancy is 10 baristas.', 'error');
+                return;
+            }
+
+            db.settings.activeStaff = staff;
+            AppDB.updateKey('settings', db.settings);
+
+            NotificationSystem.show(`Barista dispatch count adjusted to ${staff}`, 'info');
+            renderAIAllocationPanel();
+        }
+    </script>
+</body>
+</html>
